@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Liquid Glass Launcher</string>
+    <string name="lock_service_label">Liquid lock</string>
+    <string name="lock_service_desc">Lets Liquid Glass Launcher lock your screen when you double-tap an empty spot on the home screen. It does not read or collect anything from your screen.</string>
+</resources>
