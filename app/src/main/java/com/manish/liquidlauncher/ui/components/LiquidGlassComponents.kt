@@ -1,3 +1,45 @@
+package com.manish.liquidlauncher.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.manish.liquidlauncher.model.LiquidThemeConfig
+import kotlin.math.sin
+
+/**
+ * Main liquid-glass surface used throughout the launcher.
+ */
 @Composable
 fun LiquidGlassSurface(
     modifier: Modifier = Modifier,
@@ -72,7 +114,8 @@ fun LiquidGlassSurface(
                         val cycle = (clock.value * 0.16f) % 2f
 
                         if (cycle < 1f) {
-                            val x = -bandWidth + cycle * (w + bandWidth * 2f)
+                            val x = -bandWidth +
+                                cycle * (w + bandWidth * 2f)
 
                             rotate(
                                 degrees = 18f,
@@ -96,7 +139,10 @@ fun LiquidGlassSurface(
                     drawRoundRect(
                         brush = rim,
                         topLeft = Offset(stroke / 2f, stroke / 2f),
-                        size = Size(w - stroke, h - stroke),
+                        size = Size(
+                            (w - stroke).coerceAtLeast(0f),
+                            (h - stroke).coerceAtLeast(0f)
+                        ),
                         cornerRadius = CornerRadius(
                             (radius - stroke).coerceAtLeast(0f)
                         ),
@@ -106,4 +152,74 @@ fun LiquidGlassSurface(
             },
         content = content
     )
+}
+
+/**
+ * Shared liquid-glass action button.
+ *
+ * Supports both positional and named arguments used by the launcher.
+ */
+@Composable
+fun GlassButton(
+    text: String,
+    config: LiquidThemeConfig,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    tint: Color? = null,
+    onClick: () -> Unit
+) {
+    val accent = tint ?: config.accentColor()
+    val shape = RoundedCornerShape(17.dp)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 5.dp,
+                shape = shape,
+                ambientColor = accent.copy(alpha = 0.16f),
+                spotColor = accent.copy(alpha = 0.12f)
+            )
+            .clip(shape)
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.17f),
+                        accent.copy(alpha = 0.13f),
+                        Color.White.copy(alpha = 0.07f)
+                    )
+                )
+            )
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null,
+                onClick = onClick
+            )
+            .padding(
+                horizontal = 15.dp,
+                vertical = 13.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(19.dp)
+            )
+
+            Spacer(modifier = Modifier.width(9.dp))
+        }
+
+        Text(
+            text = text,
+            color = Color.White,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
 }
