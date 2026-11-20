@@ -46,7 +46,6 @@ import com.manish.liquidlauncher.ui.screens.OnboardingScreen
 import com.manish.liquidlauncher.ui.screens.PrivateSpaceOverlay
 import com.manish.liquidlauncher.ui.screens.ThemeEngineSheet
 import com.manish.liquidlauncher.ui.screens.TypeStudioSheet
-import com.manish.liquidlauncher.model.SoundTheme
 import com.manish.liquidlauncher.ui.theme.LiquidGlassTheme
 import com.manish.liquidlauncher.ui.theme.isDarkMode
 import com.manish.liquidlauncher.util.SoundFx
