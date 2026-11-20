@@ -9,6 +9,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -96,6 +97,8 @@ import com.manish.liquidlauncher.model.LiquidThemeConfig
 import com.manish.liquidlauncher.model.TypeTargets
 import com.manish.liquidlauncher.notifications.NotificationHub
 import com.manish.liquidlauncher.ui.components.ActivityTimelineWidget
+import com.manish.liquidlauncher.ui.components.AirQualityWidget
+import com.manish.liquidlauncher.ui.components.CalendarWidget
 import com.manish.liquidlauncher.ui.components.DeviceMonitorWidget
 import com.manish.liquidlauncher.ui.components.EdgeGlow
 import com.manish.liquidlauncher.ui.components.FloatingShortcutBubble
@@ -485,24 +488,35 @@ fun HomeScreen(viewModel: LauncherViewModel, onPickWallpaper: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
             ) {
-                Row(modifier = Modifier.padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    repeat(totalPages) { index ->
-                        val selected = pagerState.currentPage == index
-                        val dotWidth by animateDpAsState(
-                            targetValue = if (selected) 20.dp else 6.dp,
-                            animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium),
-                            label = "dotWidth"
-                        )
-                        Box(
-                            modifier = Modifier
-                                .height(6.dp)
-                                .width(dotWidth)
-                                .background(if (selected) accent else Color.White.copy(alpha = 0.35f), CircleShape)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) { scope.launch { pagerState.animateScrollToPage(index) } }
-                        )
+                // Glass page-indicator pill with a sliding selected chip.
+                LiquidGlassSurface(
+                    config = config,
+                    cornerRadius = 14.dp,
+                    sheen = false,
+                    modifier = Modifier
+                        .width((totalPages * 32 + 16).dp)
+                        .height(26.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize().padding(4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        repeat(totalPages) { index ->
+                            val selected = pagerState.currentPage == index
+                            Box(
+                                modifier = Modifier
+                                    .width(18.dp)
+                                    .height(18.dp)
+                                    .background(
+                                        if (selected) accent else Color.White.copy(alpha = 0.15f),
+                                        CircleShape
+                                    )
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { scope.launch { pagerState.animateScrollToPage(index) } }
+                            )
+                        }
                     }
                 }
 
@@ -985,10 +999,68 @@ private fun DashboardPage(
         Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             WeatherCard(viewModel, config, Modifier.weight(1f).fillMaxHeight())
             DeviceMonitorWidget(config, Modifier.weight(1f).fillMaxHeight(), fontFamily)
+            if (config.calendarWidgetEnabled) {
+                CalendarWidget(config, Modifier.weight(1f).fillMaxHeight(), fontFamily)
+            }
+            if (config.airQualityWidgetEnabled) {
+                AirQualityWidget(config, Modifier.weight(1f).fillMaxHeight(), fontFamily)
+            }
         }
         Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             WorldClockWidget(config, Modifier.weight(1f).fillMaxHeight(), fontFamily)
             ActivityTimelineWidget(viewModel, config, Modifier.weight(1f).fillMaxHeight(), fontFamily)
+        }
+
+        if (viewModel.appPairs.isNotEmpty()) {
+            SectionTitle("App pairs", accent)
+            Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                for (pair in viewModel.appPairs.take(4)) {
+                    val firstApp = viewModel.installedApps.firstOrNull { it.packageName == pair.first }
+                    val secondApp = viewModel.installedApps.firstOrNull { it.packageName == pair.second }
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
+                        LiquidGlassSurface(
+                            config = config,
+                            cornerRadius = 20.dp,
+                            modifier = Modifier.fillMaxSize()
+                                .jellyTouch(haptics = config.haptics, pressX = 0.92f, pressY = 0.9f, onClick = {
+                                    viewModel.launchPair(context, pair)
+                                })
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().padding(10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                if (firstApp != null && secondApp != null) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Image(
+                                            bitmap = firstApp.icon,
+                                            contentDescription = firstApp.label,
+                                            modifier = Modifier.size(32.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                                        )
+                                        Image(
+                                            bitmap = secondApp.icon,
+                                            contentDescription = secondApp.label,
+                                            modifier = Modifier.size(32.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = pair.name,
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         AppsRow("Suggested right now", viewModel.suggestedApps, "Open apps for a few days and the ones you use at this time of day appear here.", config, fontFamily, onLaunch, onMenu)

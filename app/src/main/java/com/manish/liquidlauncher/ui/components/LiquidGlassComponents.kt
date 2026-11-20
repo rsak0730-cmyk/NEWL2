@@ -1,5 +1,6 @@
 package com.manish.liquidlauncher.ui.components
 
+import android.content.Context
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -35,11 +36,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manish.liquidlauncher.model.LiquidThemeConfig
+import com.manish.liquidlauncher.model.ThemeMode
 import kotlin.math.sin
 
 /**
@@ -57,19 +60,27 @@ fun LiquidGlassSurface(
     val shape = RoundedCornerShape(cornerRadius)
     val accent = tintOverride ?: config.accentColor()
     val clock = LocalAnimClock.current
+    val context = LocalContext.current
+    val isDark = config.themeMode.isDarkMode(context)
 
     val pulse = (sin(clock.value * 1.4f) + 1f) / 2f
     val lift = 8.dp + (pulse * 2f).dp
+
+    // Glass surface colours adapt to the theme mode so light mode doesn't look like dark glass on white.
+    val surfaceBg = if (isDark) Color(0xFF0A101B) else Color(0xFFF7F8FC)
+    val surfaceText = if (isDark) Color(0xFFF1F2F6) else Color(0xFF343849)
+    val surfaceMuted = if (isDark) Color(0xFFB9C2D8) else Color(0xFF858B9C)
 
     Box(
         modifier = modifier
             .shadow(
                 elevation = lift,
                 shape = shape,
-                ambientColor = Color(0xFFB9C2D8).copy(alpha = 0.65f),
-                spotColor = Color(0xFF9DAAC8).copy(alpha = 0.42f)
+                ambientColor = if (isDark) Color(0xFFB9C2D8).copy(alpha = 0.65f) else Color(0xFFB9C2D8).copy(alpha = 0.25f),
+                spotColor = if (isDark) Color(0xFF9DAAC8).copy(alpha = 0.42f) else Color(0xFF9DAAC8).copy(alpha = 0.12f)
             )
             .clip(shape)
+            .background(surfaceBg)
             .drawWithCache {
                 val w = size.width
                 val h = size.height
@@ -78,10 +89,10 @@ fun LiquidGlassSurface(
 
                 val light = Brush.linearGradient(
                     colors = listOf(
-                        Color.White,
-                        Color(0xFFF5F6FB),
+                        if (isDark) Color.White else Color(0xFFFFFFFF),
+                        if (isDark) Color(0xFFF5F6FB) else Color(0xFFEEF2F7),
                         accent.copy(alpha = 0.10f),
-                        Color(0xFFE9ECF5)
+                        if (isDark) Color(0xFFE9ECF5) else Color(0xFFD9DEE7)
                     ),
                     start = Offset.Zero,
                     end = Offset(w, h)
@@ -89,8 +100,8 @@ fun LiquidGlassSurface(
 
                 val highlight = Brush.verticalGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.95f),
-                        Color.White.copy(alpha = 0.28f),
+                        if (isDark) Color.White.copy(alpha = 0.95f) else Color(0xFFFFFFFF).copy(alpha = 0.7f),
+                        if (isDark) Color.White.copy(alpha = 0.28f) else Color(0xFFFFFFFF).copy(alpha = 0.2f),
                         Color.Transparent
                     ),
                     startY = 0f,
@@ -99,10 +110,10 @@ fun LiquidGlassSurface(
 
                 val rim = Brush.linearGradient(
                     colors = listOf(
-                        Color.White,
-                        Color.White.copy(alpha = 0.65f),
+                        if (isDark) Color.White else Color(0xFFFFFFFF),
+                        if (isDark) Color.White.copy(alpha = 0.65f) else Color(0xFFFFFFFF).copy(alpha = 0.5f),
                         accent.copy(alpha = 0.20f),
-                        Color.White.copy(alpha = 0.9f)
+                        if (isDark) Color.White.copy(alpha = 0.9f) else Color(0xFFFFFFFF).copy(alpha = 0.8f)
                     ),
                     start = Offset.Zero,
                     end = Offset(w, h)
@@ -130,7 +141,7 @@ fun LiquidGlassSurface(
                                     brush = Brush.horizontalGradient(
                                         colors = listOf(
                                             Color.Transparent,
-                                            Color.White.copy(alpha = 0.55f),
+                                            if (isDark) Color.White.copy(alpha = 0.55f) else Color(0xFFFFFFFF).copy(alpha = 0.35f),
                                             Color.Transparent
                                         )
                                     ),

@@ -34,19 +34,50 @@ data class LiquidThemeConfig(
     val tiltEffects: Boolean = true,      // Gyro-driven glare + parallax
     val showLabels: Boolean = true,
     val haptics: Boolean = true,
+    val hapticsStrength: Float = 1.0f,    // 0.5 light, 1.0 normal, 1.5 strong
     val blurDrawer: Boolean = true,       // Blur the home screen behind the drawer (Android 12+)
     val iconShape: IconShapeStyle = IconShapeStyle.Squircle,
     val sounds: Boolean = true,           // Soft water-drop sounds
+    val soundTheme: SoundTheme = SoundTheme.WaterDrop,
     val badges: Boolean = true,           // Notification count bubbles (needs notification access)
+    val themeMode: ThemeMode = ThemeMode.Dark, // Dark / Light / System
     val dockStyle: DockStyle = DockStyle.GlassPill,
     val gridColumns: Int = 4,             // 3..5 (Grid presets)
     val gridRows: Int = 6,                // maximum rows on a page
     val oneHanded: Boolean = false,       // Shrink the workspace toward the bottom half
     val activityIsland: Boolean = true,   // Live activity island at the top edge
     val edgeLighting: Boolean = true,     // Charging / notification edge glow
+    val edgeLightingPattern: EdgePattern = EdgePattern.Sweep,
     val gestureTrail: Boolean = false,    // Liquid trail that follows the finger
-    val floatingBubbles: Boolean = false  // Draggable shortcut bubble
+    val floatingBubbles: Boolean = false, // Draggable shortcut bubble
+    val wallpaperTheme: WallpaperTheme = WallpaperTheme.Ocean,
+    val focusScheduleEnabled: Boolean = false,
+    val focusStartHour: Int = 9,
+    val focusEndHour: Int = 17,
+    val focusWeekdaysOnly: Boolean = true,
+    val calendarWidgetEnabled: Boolean = true,
+    val airQualityWidgetEnabled: Boolean = true
 )
+
+/** Dark / Light / System theme mode for glass surfaces. */
+enum class ThemeMode(val label: String) {
+    Dark("Dark"), Light("Light"), System("System")
+}
+
+/** Synthesised sound effect themes. */
+enum class SoundTheme(val label: String) {
+    WaterDrop("Water drop"), GlassChime("Glass chime"), SoftClick("Soft click"), Silent("Silent")
+}
+
+/** Living-wallpaper colour themes. */
+enum class WallpaperTheme(val label: String) {
+    Ocean("Ocean"), Aurora("Aurora"), Neon("Neon"), Toxic("Toxic"), Ruby("Ruby"), Ice("Ice")
+}
+
+/** Charging / notification edge-lighting sweep patterns. */
+enum class EdgePattern(val label: String) {
+    Sweep("Sweep"), Breathe("Breathe"), Pulse("Pulse"), Rainbow("Rainbow")
+}
 
 enum class IconShapeStyle(val label: String) {
     Squircle("Squircle"),

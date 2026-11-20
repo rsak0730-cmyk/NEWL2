@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.manish.liquidlauncher.model.LiquidThemeConfig
+import com.manish.liquidlauncher.model.WallpaperTheme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.floor
@@ -290,8 +291,32 @@ fun LiquidWallpaper(
     val tilt = LocalTilt.current
     val reducedEffects = LocalReducedEffects.current
 
-    val accent = config.accentColor()
-    val second = config.secondaryColor()
+    val baseAccent = config.accentColor()
+    val baseSecond = config.secondaryColor()
+    // Wallpaper themes shift the aurora blob colours while keeping the UI accent intact.
+    val (accent, second) = when (config.wallpaperTheme) {
+        WallpaperTheme.Ocean -> Pair(baseAccent, baseSecond)
+        WallpaperTheme.Aurora -> Pair(
+            Color.hsv(150f, 0.6f, 1f),
+            Color.hsv(285f, 0.6f, 0.9f)
+        )
+        WallpaperTheme.Neon -> Pair(
+            Color.hsv(305f, 0.9f, 1f),
+            Color.hsv(185f, 0.9f, 0.9f)
+        )
+        WallpaperTheme.Toxic -> Pair(
+            Color.hsv(105f, 0.9f, 1f),
+            Color.hsv(170f, 0.9f, 0.9f)
+        )
+        WallpaperTheme.Ruby -> Pair(
+            Color.hsv(352f, 0.8f, 1f),
+            Color.hsv(28f, 0.8f, 0.9f)
+        )
+        WallpaperTheme.Ice -> Pair(
+            Color.hsv(205f, 0.5f, 1f),
+            Color.hsv(175f, 0.5f, 0.9f)
+        )
+    }
 
     Box(
         modifier = modifier.background(Color(0xFF030712))

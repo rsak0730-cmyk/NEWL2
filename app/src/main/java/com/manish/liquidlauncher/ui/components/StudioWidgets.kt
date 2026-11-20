@@ -62,6 +62,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.manish.liquidlauncher.model.EdgePattern
 import com.manish.liquidlauncher.model.LiquidThemeConfig
 import com.manish.liquidlauncher.model.TypeTargets
 import com.manish.liquidlauncher.notifications.NotificationHub
@@ -684,24 +685,66 @@ fun EdgeGlow(config: LiquidThemeConfig, active: Boolean) {
     if (!active) return
     val accent = config.accentColor()
     val second = config.secondaryColor()
-    val pulse = rememberInfiniteTransition(label = "edge").animateFloat(
-        initialValue = 0.25f,
-        targetValue = 0.85f,
-        animationSpec = infiniteRepeatable(tween(1800, easing = LinearEasing), RepeatMode.Reverse),
-        label = "edgeAlpha"
-    )
+    val clock = LocalAnimClock.current
+    val t = clock.value
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val stroke = 10.dp.toPx()
         val inset = stroke / 2f
-        drawRoundRect(
-            brush = Brush.sweepGradient(listOf(accent, second, accent)),
-            topLeft = Offset(inset, inset),
-            size = Size(size.width - stroke, size.height - stroke),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(28.dp.toPx()),
-            alpha = pulse.value,
-            style = Stroke(width = stroke)
-        )
+        val size = Size(size.width - stroke, size.height - stroke)
+
+        when (config.edgeLightingPattern) {
+            EdgePattern.Sweep -> {
+                val pulse = (sin(t * 1.5f) + 1f) / 2f
+                val alpha = 0.25f + 0.6f * pulse
+                drawRoundRect(
+                    brush = Brush.sweepGradient(listOf(accent, second, accent)),
+                    topLeft = Offset(inset, inset),
+                    size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(28.dp.toPx()),
+                    alpha = alpha,
+                    style = Stroke(width = stroke)
+                )
+            }
+            EdgePattern.Breathe -> {
+                val pulse = (sin(t * 0.8f) + 1f) / 2f
+                val alpha = 0.3f + 0.5f * pulse
+                drawRoundRect(
+                    brush = Brush.sweepGradient(listOf(accent.copy(alpha = 0.6f), second.copy(alpha = 0.6f), accent.copy(alpha = 0.6f))),
+                    topLeft = Offset(inset, inset),
+                    size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(28.dp.toPx()),
+                    alpha = alpha,
+                    style = Stroke(width = stroke)
+                )
+            }
+            EdgePattern.Pulse -> {
+                val pulse = (sin(t * 4f).coerceIn(0f, 1f))
+                val alpha = 0.15f + 0.7f * pulse
+                drawRoundRect(
+                    brush = Brush.sweepGradient(listOf(accent, second, accent)),
+                    topLeft = Offset(inset, inset),
+                    size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(28.dp.toPx()),
+                    alpha = alpha,
+                    style = Stroke(width = stroke)
+                )
+            }
+            EdgePattern.Rainbow -> {
+                val hue = (t * 30f) % 360f
+                val c1 = Color.hsv(hue, 0.8f, 1f)
+                val c2 = Color.hsv((hue + 120f) % 360f, 0.8f, 1f)
+                val c3 = Color.hsv((hue + 240f) % 360f, 0.8f, 1f)
+                drawRoundRect(
+                    brush = Brush.sweepGradient(listOf(c1, c2, c3, c1)),
+                    topLeft = Offset(inset, inset),
+                    size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(28.dp.toPx()),
+                    alpha = 0.7f,
+                    style = Stroke(width = stroke)
+                )
+            }
+        }
     }
 }
 

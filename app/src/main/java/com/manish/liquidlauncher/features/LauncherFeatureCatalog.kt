@@ -148,7 +148,7 @@ object LauncherFeatureCatalog {
             Feature(
                 "Interactive Weather Widget", "Widgets & Information",
                 "Live current conditions from Open-Meteo (no key, no location permission). Set the city in Theme Engine › Widgets.",
-                Status.NeedsPermission
+                Status.Ready
             ),
             Feature(
                 "Animated Battery Widget", "Widgets & Information",

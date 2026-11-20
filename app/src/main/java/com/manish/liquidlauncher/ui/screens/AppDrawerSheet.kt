@@ -398,6 +398,44 @@ fun AppDrawerSheet(viewModel: LauncherViewModel) {
                     modifier = Modifier.height(14.dp)
                 )
 
+                // ---- App drawer quick-actions -------------------------------------------
+                if (query.isBlank()) {
+                    SectionTitleDrawer("Quick actions", accent)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val recent = viewModel.recentApps.take(4)
+                        if (recent.isNotEmpty()) {
+                            GlassButton(
+                                text = "Recent",
+                                config = config,
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Rounded.AccessTime
+                            ) { viewModel.openDrawer() }
+                        }
+                        GlassButton(
+                            text = "Updated",
+                            config = config,
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Rounded.Refresh
+                        ) { viewModel.openDrawer() }
+                        GlassButton(
+                            text = "Frequent",
+                            config = config,
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Rounded.Dashboard
+                        ) { viewModel.openDrawer() }
+                        GlassButton(
+                            text = "Large",
+                            config = config,
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Rounded.Cloud
+                        ) { viewModel.openDrawer() }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -640,4 +678,17 @@ private fun AlphabetRail(
             )
         }
     }
+}
+
+@Composable
+private fun SectionTitleDrawer(text: String, accent: Color) {
+    Text(
+        text = text.uppercase(),
+        color = accent,
+        fontFamily = FontFamily.SansSerif,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.4.sp,
+        modifier = Modifier.padding(horizontal = 12.dp, top = 4.dp, bottom = 4.dp)
+    )
 }

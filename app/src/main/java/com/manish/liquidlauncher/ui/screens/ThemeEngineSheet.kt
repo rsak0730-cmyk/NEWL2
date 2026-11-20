@@ -63,10 +63,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manish.liquidlauncher.features.FeatureStudioActivity
 import com.manish.liquidlauncher.model.DockStyle
+import com.manish.liquidlauncher.model.EdgePattern
 import com.manish.liquidlauncher.model.GridPresets
 import com.manish.liquidlauncher.model.IconShapeStyle
 import com.manish.liquidlauncher.model.LiquidThemeConfig
+import com.manish.liquidlauncher.model.SoundTheme
+import com.manish.liquidlauncher.model.ThemeMode
 import com.manish.liquidlauncher.model.TypeTargets
+import com.manish.liquidlauncher.model.WallpaperTheme
 import com.manish.liquidlauncher.notifications.NotificationHub
 import com.manish.liquidlauncher.model.ThemePresets
 import com.manish.liquidlauncher.ui.components.GlassButton
@@ -214,6 +218,21 @@ fun ThemeEngineSheet(
                             viewModel.updateTheme(config.copy(iconScale = it))
                         }
 
+                        Label("Theme mode")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            ThemeMode.values().forEach { mode ->
+                                GlassButton(
+                                    text = mode.label,
+                                    config = config,
+                                    modifier = Modifier.weight(1f),
+                                    tint = if (config.themeMode == mode) accent else null
+                                ) { viewModel.updateTheme(config.copy(themeMode = mode)) }
+                            }
+                        }
+
                         Label("Icon shape")
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -271,6 +290,22 @@ fun ThemeEngineSheet(
                         ToggleRow("Edge lighting while charging", config.edgeLighting, accent) {
                             viewModel.updateTheme(config.copy(edgeLighting = it))
                         }
+                        if (config.edgeLighting) {
+                            Label("Edge pattern")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                EdgePattern.values().forEach { pattern ->
+                                    GlassButton(
+                                        text = pattern.label,
+                                        config = config,
+                                        modifier = Modifier.weight(1f),
+                                        tint = if (config.edgeLightingPattern == pattern) accent else null
+                                    ) { viewModel.updateTheme(config.copy(edgeLightingPattern = pattern)) }
+                                }
+                            }
+                        }
                         ToggleRow("Floating shortcut bubble", config.floatingBubbles, accent) {
                             viewModel.updateTheme(config.copy(floatingBubbles = it))
                         }
@@ -294,14 +329,58 @@ fun ThemeEngineSheet(
                         ToggleRow("Haptic feedback", config.haptics, accent) {
                             viewModel.updateTheme(config.copy(haptics = it))
                         }
+                        if (config.haptics) {
+                            ThemeSlider("Haptic strength", config.hapticsStrength, 0.5f..1.5f, accent) {
+                                viewModel.updateTheme(config.copy(hapticsStrength = it))
+                            }
+                        }
                         ToggleRow("Blur behind drawer", config.blurDrawer, accent) {
                             viewModel.updateTheme(config.copy(blurDrawer = it))
                         }
                         ToggleRow("Water-drop sounds", config.sounds, accent) {
                             viewModel.updateTheme(config.copy(sounds = it))
                         }
+                        if (config.sounds) {
+                            Label("Sound theme")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                SoundTheme.values().forEach { theme ->
+                                    GlassButton(
+                                        text = theme.label,
+                                        config = config,
+                                        modifier = Modifier.weight(1f),
+                                        tint = if (config.soundTheme == theme) accent else null
+                                    ) { viewModel.updateTheme(config.copy(soundTheme = theme)) }
+                                }
+                            }
+                        }
                         ToggleRow("Notification badges", config.badges, accent) {
                             viewModel.updateTheme(config.copy(badges = it))
+                        }
+
+                        Label("Focus schedule")
+                        ToggleRow("Enable focus schedule", config.focusScheduleEnabled, accent) {
+                            viewModel.updateTheme(config.copy(focusScheduleEnabled = it))
+                        }
+                        if (config.focusScheduleEnabled) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                GlassButton("From ${config.focusStartHour}:00", config, Modifier.weight(1f)) {
+                                    val newStart = (config.focusStartHour + 1).coerceIn(0, 23)
+                                    viewModel.updateTheme(config.copy(focusStartHour = newStart))
+                                }
+                                GlassButton("To ${config.focusEndHour}:00", config, Modifier.weight(1f)) {
+                                    val newEnd = (config.focusEndHour + 1).coerceIn(0, 23)
+                                    viewModel.updateTheme(config.copy(focusEndHour = newEnd))
+                                }
+                                GlassButton("Weekdays only: ${config.focusWeekdaysOnly}", config, Modifier.weight(1f)) {
+                                    viewModel.updateTheme(config.copy(focusWeekdaysOnly = !config.focusWeekdaysOnly))
+                                }
+                            }
                         }
 
                         Label("Wallpaper & system")
@@ -309,6 +388,20 @@ fun ThemeEngineSheet(
                         if (viewModel.customWallpaperUri != null) {
                             GlassButton("Use living wallpaper", config, Modifier.fillMaxWidth(), Icons.Rounded.Refresh) {
                                 viewModel.setWallpaper(null)
+                            }
+                        }
+                        Label("Wallpaper theme")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            WallpaperTheme.values().forEach { theme ->
+                                GlassButton(
+                                    text = theme.label,
+                                    config = config,
+                                    modifier = Modifier.weight(1f),
+                                    tint = if (config.wallpaperTheme == theme) accent else null
+                                ) { viewModel.updateTheme(config.copy(wallpaperTheme = theme)) }
                             }
                         }
                         if (viewModel.hiddenPackages.isNotEmpty()) {
@@ -357,6 +450,12 @@ fun ThemeEngineSheet(
                         }
 
                         Label("Widgets")
+                        ToggleRow("Calendar widget", config.calendarWidgetEnabled, accent) {
+                            viewModel.updateTheme(config.copy(calendarWidgetEnabled = it))
+                        }
+                        ToggleRow("Air quality widget", config.airQualityWidgetEnabled, accent) {
+                            viewModel.updateTheme(config.copy(airQualityWidgetEnabled = it))
+                        }
                         var cityInput by remember(viewModel.weatherCity) { mutableStateOf(viewModel.weatherCity) }
                         LiquidGlassSurface(
                             config = config,
