@@ -1,6 +1,9 @@
 package com.manish.liquidlauncher.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,10 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -154,11 +159,7 @@ fun LiquidGlassSurface(
     )
 }
 
-/**
- * Shared liquid-glass action button.
- *
- * Supports both positional and named arguments used by the launcher.
- */
+/** Shared liquid-glass action button. */
 @Composable
 fun GlassButton(
     text: String,
@@ -191,16 +192,11 @@ fun GlassButton(
                 )
             )
             .clickable(
-                interactionSource = remember {
-                    MutableInteractionSource()
-                },
+                interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onClick
             )
-            .padding(
-                horizontal = 15.dp,
-                vertical = 13.dp
-            ),
+            .padding(horizontal = 15.dp, vertical = 13.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -211,7 +207,6 @@ fun GlassButton(
                 tint = accent,
                 modifier = Modifier.size(19.dp)
             )
-
             Spacer(modifier = Modifier.width(9.dp))
         }
 
@@ -220,6 +215,79 @@ fun GlassButton(
             color = Color.White,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+/** Circular icon action used in the home-screen toolbar. */
+@Composable
+fun GlassIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    config: LiquidThemeConfig,
+    modifier: Modifier = Modifier,
+    size: Dp = 42.dp,
+    tint: Color? = null,
+    onClick: () -> Unit
+) {
+    val accent = tint ?: config.accentColor()
+    Box(
+        modifier = modifier
+            .size(size)
+            .shadow(
+                elevation = 5.dp,
+                shape = CircleShape,
+                ambientColor = accent.copy(alpha = 0.18f),
+                spotColor = accent.copy(alpha = 0.14f)
+            )
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.12f))
+            .border(1.dp, Color.White.copy(alpha = 0.28f), CircleShape)
+            .jellyTouch(haptics = config.haptics, pressX = 0.92f, pressY = 0.92f, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = accent,
+            modifier = Modifier.size(size * 0.48f)
+        )
+    }
+}
+
+/** Theme-engine toggle switch. */
+@Composable
+fun LiquidSwitch(
+    checked: Boolean,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val thumbFraction by animateFloatAsState(
+        targetValue = if (checked) 1f else 0f,
+        animationSpec = spring(dampingRatio = 0.55f, stiffness = 420f),
+        label = "liquidSwitch"
+    )
+
+    Box(
+        modifier = modifier
+            .size(width = 48.dp, height = 28.dp)
+            .clip(CircleShape)
+            .background(if (checked) accent.copy(alpha = 0.72f) else Color.White.copy(alpha = 0.15f))
+            .border(1.dp, Color.White.copy(alpha = 0.32f), CircleShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onCheckedChange(!checked) }
+            .padding(3.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .size(22.dp)
+                .padding(horizontal = (thumbFraction * 20f).dp)
+                .clip(CircleShape)
+                .background(Color.White)
         )
     }
 }
