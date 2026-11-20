@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manish.liquidlauncher.model.LiquidThemeConfig
 import com.manish.liquidlauncher.model.ThemeMode
+import com.manish.liquidlauncher.ui.theme.isDarkMode
 import kotlin.math.sin
 
 /**
