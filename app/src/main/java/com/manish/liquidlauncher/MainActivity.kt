@@ -42,10 +42,12 @@ import com.manish.liquidlauncher.ui.screens.FolderOverlay
 import com.manish.liquidlauncher.ui.screens.GestureStudioSheet
 import com.manish.liquidlauncher.ui.screens.HomeScreen
 import com.manish.liquidlauncher.ui.screens.IdleScreen
+import com.manish.liquidlauncher.ui.screens.OnboardingScreen
 import com.manish.liquidlauncher.ui.screens.PrivateSpaceOverlay
 import com.manish.liquidlauncher.ui.screens.ThemeEngineSheet
 import com.manish.liquidlauncher.ui.screens.TypeStudioSheet
 import com.manish.liquidlauncher.ui.theme.LiquidGlassTheme
+import com.manish.liquidlauncher.ui.theme.isDarkMode
 import com.manish.liquidlauncher.util.SoundFx
 import com.manish.liquidlauncher.viewmodel.LauncherViewModel
 
@@ -56,16 +58,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            statusBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT)
         )
         if (Build.VERSION.SDK_INT >= 29) {
             window.isNavigationBarContrastEnforced = false
         }
         setContent {
-            LiquidGlassTheme {
-                LiquidLauncherRoot(viewModel)
-            }
+            LiquidLauncherRoot(viewModel)
         }
     }
 
@@ -81,7 +81,11 @@ fun LiquidLauncherRoot(viewModel: LauncherViewModel) {
     val context = LocalContext.current
     val config = viewModel.themeConfig
 
-    SideEffect { SoundFx.enabled = config.sounds }
+        LiquidGlassTheme(isDark = config.themeMode.isDarkMode(context)) {
+            SideEffect {
+                SoundFx.enabled = config.sounds
+                SoundFx.theme = config.soundTheme
+            }
 
     // Persistable permission keeps the wallpaper working after reboot
     val wallpaperPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -150,6 +154,10 @@ fun LiquidLauncherRoot(viewModel: LauncherViewModel) {
             GestureStudioSheet(viewModel = viewModel)
             PrivateSpaceOverlay(viewModel = viewModel)
             IdleScreen(viewModel = viewModel)
+            if (viewModel.onboardingOpen) {
+                OnboardingScreen(viewModel = viewModel)
+            }
         }
     }
-}
+} // close LiquidGlassTheme
+} // close LiquidLauncherRoot

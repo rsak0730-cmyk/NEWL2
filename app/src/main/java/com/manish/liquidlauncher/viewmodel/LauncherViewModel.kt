@@ -17,6 +17,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import java.util.Calendar
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -70,6 +71,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         private set
     var frequentApps by mutableStateOf<List<AppInfo>>(emptyList())
         private set
+    var recentApps by mutableStateOf<List<AppInfo>>(emptyList())
+        private set
     var suggestedApps by mutableStateOf<List<AppInfo>>(emptyList())
         private set
     var hiddenPackages by mutableStateOf(prefs.loadHidden())
@@ -105,6 +108,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         private set
     var typeStudioOpen by mutableStateOf(false)
     var typeStudioTarget by mutableStateOf(TypeTargets.HOME)
+        private set
+    var onboardingOpen by mutableStateOf(!prefs.onboarded)
         private set
     var fontQuery by mutableStateOf("")
     var fontLanguage by mutableStateOf("")
@@ -299,6 +304,11 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         suggestedApps = visible
             .filter { (bucketCounts[it.packageName] ?: 0) > 0 }
             .sortedByDescending { bucketCounts[it.packageName] ?: 0 }
+            .take(4)
+        // Recent apps from launch history
+        recentApps = prefs.loadHistory()
+            .mapNotNull { byPkg[it.packageName] }
+            .distinctBy { it.packageName }
             .take(4)
     }
 
@@ -520,6 +530,32 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         Toast.makeText(app, msg, Toast.LENGTH_SHORT).show()
     }
 
+    fun onboardingComplete() {
+        onboardingOpen = false
+        prefs.onboarded = true
+    }
+
+    /** Auto-enable focus mode when inside the scheduled window; disable outside it. */
+    fun checkFocusSchedule() {
+        if (!themeConfig.focusScheduleEnabled) return
+        val now = Calendar.getInstance()
+        val hour = now.get(Calendar.HOUR_OF_DAY)
+        val day = now.get(Calendar.DAY_OF_WEEK)
+        val isWeekend = day == Calendar.SATURDAY || day == Calendar.SUNDAY
+        val inWindow = if (themeConfig.focusStartHour <= themeConfig.focusEndHour) {
+            hour in themeConfig.focusStartHour..themeConfig.focusEndHour
+        } else {
+            // overnight window, e.g. 22..6
+            hour >= themeConfig.focusStartHour || hour <= themeConfig.focusEndHour
+        }
+        val shouldFocus = inWindow && (!themeConfig.focusWeekdaysOnly || !isWeekend)
+        if (shouldFocus != focusMode) {
+            focusMode = shouldFocus
+            prefs.focusMode = focusMode
+            rebuild()
+        }
+    }
+
     // ---- Lock gesture ----------------------------------------------------------------------
     fun lockScreen(context: Context) {
         if (!LockAccessibilityService.lock()) {
@@ -596,6 +632,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     // ---- Theme / wallpaper -----------------------------------------------------------------
     fun updateTheme(newConfig: LiquidThemeConfig) {
         themeConfig = newConfig
+        checkFocusSchedule()
         saveJob?.cancel()
         saveJob = viewModelScope.launch {
             delay(250)

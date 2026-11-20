@@ -4,6 +4,7 @@ import android.content.Context
 import com.manish.liquidlauncher.model.AppPair
 import com.manish.liquidlauncher.model.CustomFolder
 import com.manish.liquidlauncher.model.DockStyle
+import com.manish.liquidlauncher.model.EdgePattern
 import com.manish.liquidlauncher.model.FontChoice
 import com.manish.liquidlauncher.model.GestureAction
 import com.manish.liquidlauncher.model.GestureMap
@@ -11,6 +12,9 @@ import com.manish.liquidlauncher.model.GestureSlot
 import com.manish.liquidlauncher.model.IconShapeStyle
 import com.manish.liquidlauncher.model.LaunchEvent
 import com.manish.liquidlauncher.model.LiquidThemeConfig
+import com.manish.liquidlauncher.model.SoundTheme
+import com.manish.liquidlauncher.model.ThemeMode
+import com.manish.liquidlauncher.model.WallpaperTheme
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Calendar
@@ -37,18 +41,29 @@ class LauncherPrefs(context: Context) {
             tiltEffects = sp.getBoolean("tilt", d.tiltEffects),
             showLabels = sp.getBoolean("labels", d.showLabels),
             haptics = sp.getBoolean("haptics", d.haptics),
+            hapticsStrength = sp.getFloat("hapticsStrength", d.hapticsStrength).coerceIn(0.5f, 1.5f),
             blurDrawer = sp.getBoolean("blur", d.blurDrawer),
             iconShape = shapes.getOrElse(sp.getInt("shape", d.iconShape.ordinal)) { d.iconShape },
             sounds = sp.getBoolean("sounds", d.sounds),
+            soundTheme = SoundTheme.values().getOrElse(sp.getInt("soundTheme", d.soundTheme.ordinal)) { d.soundTheme },
             badges = sp.getBoolean("badges", d.badges),
+            themeMode = ThemeMode.values().getOrElse(sp.getInt("themeMode", d.themeMode.ordinal)) { d.themeMode },
             dockStyle = DockStyle.values().getOrElse(sp.getInt("dockStyle", d.dockStyle.ordinal)) { d.dockStyle },
             gridColumns = sp.getInt("gridColumns", d.gridColumns).coerceIn(3, 5),
             gridRows = sp.getInt("gridRows", d.gridRows).coerceIn(3, 7),
             oneHanded = sp.getBoolean("oneHanded", d.oneHanded),
             activityIsland = sp.getBoolean("island", d.activityIsland),
             edgeLighting = sp.getBoolean("edgeLight", d.edgeLighting),
+            edgeLightingPattern = EdgePattern.values().getOrElse(sp.getInt("edgePattern", d.edgeLightingPattern.ordinal)) { d.edgeLightingPattern },
             gestureTrail = sp.getBoolean("trail", d.gestureTrail),
-            floatingBubbles = sp.getBoolean("bubble", d.floatingBubbles)
+            floatingBubbles = sp.getBoolean("bubble", d.floatingBubbles),
+            wallpaperTheme = WallpaperTheme.values().getOrElse(sp.getInt("wallTheme", d.wallpaperTheme.ordinal)) { d.wallpaperTheme },
+            focusScheduleEnabled = sp.getBoolean("focusSched", d.focusScheduleEnabled),
+            focusStartHour = sp.getInt("focusStart", d.focusStartHour).coerceIn(0, 23),
+            focusEndHour = sp.getInt("focusEnd", d.focusEndHour).coerceIn(0, 23),
+            focusWeekdaysOnly = sp.getBoolean("focusWeekdays", d.focusWeekdaysOnly),
+            calendarWidgetEnabled = sp.getBoolean("calWidget", d.calendarWidgetEnabled),
+            airQualityWidgetEnabled = sp.getBoolean("aqWidget", d.airQualityWidgetEnabled)
         )
     }
 
@@ -66,18 +81,29 @@ class LauncherPrefs(context: Context) {
             .putBoolean("tilt", c.tiltEffects)
             .putBoolean("labels", c.showLabels)
             .putBoolean("haptics", c.haptics)
+            .putFloat("hapticsStrength", c.hapticsStrength)
             .putBoolean("blur", c.blurDrawer)
             .putInt("shape", c.iconShape.ordinal)
             .putBoolean("sounds", c.sounds)
+            .putInt("soundTheme", c.soundTheme.ordinal)
             .putBoolean("badges", c.badges)
+            .putInt("themeMode", c.themeMode.ordinal)
             .putInt("dockStyle", c.dockStyle.ordinal)
             .putInt("gridColumns", c.gridColumns)
             .putInt("gridRows", c.gridRows)
             .putBoolean("oneHanded", c.oneHanded)
             .putBoolean("island", c.activityIsland)
             .putBoolean("edgeLight", c.edgeLighting)
+            .putInt("edgePattern", c.edgeLightingPattern.ordinal)
             .putBoolean("trail", c.gestureTrail)
             .putBoolean("bubble", c.floatingBubbles)
+            .putInt("wallTheme", c.wallpaperTheme.ordinal)
+            .putBoolean("focusSched", c.focusScheduleEnabled)
+            .putInt("focusStart", c.focusStartHour)
+            .putInt("focusEnd", c.focusEndHour)
+            .putBoolean("focusWeekdays", c.focusWeekdaysOnly)
+            .putBoolean("calWidget", c.calendarWidgetEnabled)
+            .putBoolean("aqWidget", c.airQualityWidgetEnabled)
             .apply()
     }
 
@@ -91,6 +117,12 @@ class LauncherPrefs(context: Context) {
         get() = sp.getBoolean("focus", false)
         set(value) {
             sp.edit().putBoolean("focus", value).apply()
+        }
+
+    var onboarded: Boolean
+        get() = sp.getBoolean("onboarded", false)
+        set(value) {
+            sp.edit().putBoolean("onboarded", value).apply()
         }
 
     /** null = never customised (use smart defaults). */

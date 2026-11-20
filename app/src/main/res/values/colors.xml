@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="launcher_bg">#FFF1F2F6</color>
-    <color name="ic_launcher_bg">#FFE8EAF2</color>
+    <!-- Deep liquid-glass dark background used by the root window and wallpaper. -->
+    <color name="launcher_bg">#FF030712</color>
+    <color name="ic_launcher_bg">#FF030712</color>
+
+    <!-- Glass surface layers (lightest → darkest) for elevation and depth. -->
+    <color name="glass_surface">#FF0A101B</color>
+    <color name="glass_surface_elevated">#FF0F1827</color>
+    <color name="glass_divider">#FF1B2535</color>
+
+    <!-- Text hierarchy on dark glass. -->
+    <color name="text_primary">#FFF1F2F6</color>
+    <color name="text_secondary">#FFB9C2D8</color>
+    <color name="text_muted">#FF7A8699</color>
+
+    <!-- Accent / brand hues. -->
+    <color name="accent_deep_ocean">#FF4FC3D7</color>
+    <color name="accent_aurora">#FF7C4DFF</color>
+    <color name="accent_sunset">#FFFF6B6B</color>
 </resources>
