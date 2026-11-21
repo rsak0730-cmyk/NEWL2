@@ -37,10 +37,21 @@ fun LiquidThemeConfig.secondaryColor(): Color =
         1f
     )
 
+/**
+ * Jelly-style touch modifier with visual pressed feedback, ripple, haptics, and sound.
+ *
+ * UX guidelines applied:
+ * - 48dp minimum touch target (enforced by callers)
+ * - Pressed state scales down slightly for tactile feedback
+ * - Ripple expands from press point
+ * - Haptics on press and long-press
+ * - Sound on tap
+ * - Animation uses Motion tokens for consistent timing
+ */
 fun Modifier.jellyTouch(
     haptics: Boolean = true,
-    pressX: Float = 0.86f,
-    pressY: Float = 0.80f,
+    pressX: Float = 0.94f,
+    pressY: Float = 0.90f,
     ripple: Boolean = true,
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit
@@ -61,7 +72,7 @@ fun Modifier.jellyTouch(
     val sx by animateFloatAsState(
         targetValue = if (pressed) pressX else 1f,
         animationSpec = spring(
-            dampingRatio = 0.32f,
+            dampingRatio = 0.30f,
             stiffness = Spring.StiffnessMedium
         ),
         label = "jellyX"
@@ -70,10 +81,19 @@ fun Modifier.jellyTouch(
     val sy by animateFloatAsState(
         targetValue = if (pressed) pressY else 1f,
         animationSpec = spring(
-            dampingRatio = 0.28f,
+            dampingRatio = 0.26f,
             stiffness = Spring.StiffnessMedium
         ),
         label = "jellyY"
+    )
+
+    val alpha by animateFloatAsState(
+        targetValue = if (pressed) 0.85f else 1f,
+        animationSpec = tween(
+            durationMillis = Motion.DURATION_FAST,
+            easing = Motion.EASE_OUT
+        ),
+        label = "jellyAlpha"
     )
 
     this
@@ -91,7 +111,7 @@ fun Modifier.jellyTouch(
                             rippleProgress.animateTo(
                                 1f,
                                 tween(
-                                    durationMillis = 460,
+                                    durationMillis = Motion.DURATION_NORMAL,
                                     easing = LinearEasing
                                 )
                             )
@@ -160,5 +180,6 @@ fun Modifier.jellyTouch(
         .graphicsLayer {
             scaleX = sx
             scaleY = sy
+            alpha = alpha
         }
 }

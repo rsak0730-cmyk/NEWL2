@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.manish.liquidlauncher.data.LauncherPrefs
 import com.manish.liquidlauncher.model.LiquidThemeConfig
+import com.manish.liquidlauncher.ui.theme.LiquidTypography
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -413,10 +414,8 @@ fun GaugeCard(
         ) {
             Text(
                 text = title,
-                color = Color.White.copy(alpha = 0.8f),
-                fontFamily = FontFamily.SansSerif,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold
+                style = LiquidTypography.labelMedium,
+                color = Color.White.copy(alpha = 0.8f)
             )
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(78.dp)) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
@@ -446,18 +445,15 @@ fun GaugeCard(
                 }
                 Text(
                     text = "${(animated * 100).toInt()}%",
+                    style = LiquidTypography.titleMedium,
                     color = Color.White,
-                    fontFamily = FontFamily.SansSerif,
-                    fontSize = 17.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Text(
                 text = detail,
+                style = LiquidTypography.bodySmall,
                 color = accent,
-                fontFamily = FontFamily.SansSerif,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
