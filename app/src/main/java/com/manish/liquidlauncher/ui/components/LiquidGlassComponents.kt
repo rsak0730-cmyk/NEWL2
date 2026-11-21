@@ -307,7 +307,7 @@ fun GlassIconButton(
     onClick: () -> Unit
 ) {
     val accent = tint ?: config.accentColor()
-    val buttonSize = size.coerceAtLeast(MinTouchTarget)
+    val buttonSize = if (size > MinTouchTarget) size else MinTouchTarget
     val isPressed by remember { mutableStateOf(false) }
     val pressScale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,

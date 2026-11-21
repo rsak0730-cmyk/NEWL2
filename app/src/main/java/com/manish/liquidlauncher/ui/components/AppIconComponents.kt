@@ -108,10 +108,36 @@ fun LiquidAppIconItem(
     ) {
         if (entranceIndex >= 0) {
             StaggeredEntrance(index = entranceIndex, config = config) {
-                iconContent(shape)
+                Box(
+                    modifier = Modifier
+                        .size(iconBoxSize)
+                        .clip(shape)
+                        .background(app.tint.copy(alpha = 0.16f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        bitmap = app.icon,
+                        contentDescription = app.label,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize().padding(4.dp).clip(shape)
+                    )
+                }
             }
         } else {
-            iconContent(shape)
+            Box(
+                modifier = Modifier
+                    .size(iconBoxSize)
+                    .clip(shape)
+                    .background(app.tint.copy(alpha = 0.16f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    bitmap = app.icon,
+                    contentDescription = app.label,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize().padding(4.dp).clip(shape)
+                )
+            }
         }
         if (showLabel) {
             Text(
@@ -128,23 +154,6 @@ fun LiquidAppIconItem(
         }
     }
 }
-
-@Composable
-private fun iconContent(shape: androidx.compose.ui.shape.Shape, app: AppInfo, iconBoxSize: Dp) =
-    Box(
-        modifier = Modifier
-            .size(iconBoxSize)
-            .clip(shape)
-            .background(app.tint.copy(alpha = 0.16f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            bitmap = app.icon,
-            contentDescription = app.label,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize().padding(4.dp).clip(shape)
-        )
-    }
 
 @Composable
 fun LiquidFolderItem(
