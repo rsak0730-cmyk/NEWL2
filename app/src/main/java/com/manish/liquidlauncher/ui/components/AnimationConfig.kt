@@ -44,9 +44,9 @@ object Motion {
     // ------------------------------------------------------------------
     // Tween specs
     // ------------------------------------------------------------------
-    @JvmField val TWEEN_FADE = tween(durationMillis = DURATION_NORMAL, easing = EASE_OUT)
-    @JvmField val TWEEN_SLIDE = tween(durationMillis = DURATION_NORMAL, easing = EASE_OUT)
-    @JvmField val TWEEN_SCALE = tween(durationMillis = DURATION_FAST, easing = EASE_OUT)
+    @JvmField val TWEEN_FADE = tween<Float>(durationMillis = DURATION_NORMAL, easing = EASE_OUT)
+    @JvmField val TWEEN_SLIDE = tween<Float>(durationMillis = DURATION_NORMAL, easing = EASE_OUT)
+    @JvmField val TWEEN_SCALE = tween<Float>(durationMillis = DURATION_FAST, easing = EASE_OUT)
 
     // ------------------------------------------------------------------
     // Stagger delays for list/item entrances
