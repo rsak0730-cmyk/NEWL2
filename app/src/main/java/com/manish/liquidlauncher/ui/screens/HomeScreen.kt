@@ -15,7 +15,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -503,18 +502,14 @@ fun HomeScreen(viewModel: LauncherViewModel, onPickWallpaper: () -> Unit) {
                     ) {
                         repeat(totalPages) { index ->
                             val selected = pagerState.currentPage == index
-                            Box(
-                                modifier = Modifier
-                                    .width(18.dp)
-                                    .height(18.dp)
-                                    .background(
-                                        if (selected) accent else Color.White.copy(alpha = 0.15f),
-                                        CircleShape
-                                    )
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) { scope.launch { pagerState.animateScrollToPage(index) } }
+                            GlassIconButton(
+                                icon = androidx.compose.material3.Icons.Default.FiberManualRecord,
+                                contentDescription = "Page $index ${if (selected) "selected" else ""}",
+                                config = config,
+                                size = 8.dp,
+                                tint = if (selected) accent else Color.White.copy(alpha = 0.5f),
+                                enabled = true,
+                                onClick = { scope.launch { pagerState.animateScrollToPage(index) } }
                             )
                         }
                     }
