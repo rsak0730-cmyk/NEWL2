@@ -10,12 +10,23 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Gesture
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,15 +43,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manish.liquidlauncher.ui.components.GlassButton
 import com.manish.liquidlauncher.ui.components.LiquidGlassSurface
-import com.manish.liquidlauncher.ui.components.popIn
+import com.manish.liquidlauncher.ui.components.jellyTouch
 import com.manish.liquidlauncher.viewmodel.LauncherViewModel
 
 /** First-launch walkthrough: introduces the liquid-glass gestures in three glass cards. */
 @Composable
 fun OnboardingScreen(viewModel: LauncherViewModel) {
-    val context = LocalContext.current
     val config = viewModel.themeConfig
-    val accent = config.accentColor()
     val step by remember { mutableIntStateOf(0) }
     val total = 3
 
@@ -169,5 +178,3 @@ private data class OnboardingPage(
     val body: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector
 )
-
-private fun Spacer(modifier: Modifier) = androidx.compose.foundation.layout.Spacer(modifier = modifier)
