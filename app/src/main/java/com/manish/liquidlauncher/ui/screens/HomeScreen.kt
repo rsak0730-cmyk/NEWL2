@@ -7,6 +7,7 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -503,18 +504,31 @@ fun HomeScreen(viewModel: LauncherViewModel, onPickWallpaper: () -> Unit) {
                     ) {
                         repeat(totalPages) { index ->
                             val selected = pagerState.currentPage == index
+                            val isPressed by remember { mutableStateOf(false) }
+                            val pressScale by animateFloatAsState(
+                                targetValue = if (isPressed) 0.85f else 1f,
+                                animationSpec = spring(
+                                    dampingRatio = 0.30f,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                label = "pageIndicatorPress"
+                            )
                             Box(
                                 modifier = Modifier
-                                    .width(18.dp)
-                                    .height(18.dp)
+                                    .size(8.dp)
+                                    .clip(CircleShape)
                                     .background(
-                                        if (selected) accent else Color.White.copy(alpha = 0.15f),
-                                        CircleShape
+                                        if (selected) accent else Color.White.copy(alpha = 0.15f)
                                     )
                                     .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
+                                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                                         indication = null
-                                    ) { scope.launch { pagerState.animateScrollToPage(index) } }
+                                    ) {
+                                        isPressed = true
+                                        scope.launch { pagerState.animateScrollToPage(index) }
+                                    }
+                                    .graphicsLayer { scaleX = pressScale; scaleY = pressScale },
+                                contentAlignment = Alignment.Center
                             )
                         }
                     }

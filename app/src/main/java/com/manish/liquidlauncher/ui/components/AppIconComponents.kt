@@ -1,8 +1,11 @@
 package com.manish.liquidlauncher.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,6 +34,42 @@ import androidx.compose.ui.unit.sp
 import com.manish.liquidlauncher.model.AppInfo
 import com.manish.liquidlauncher.model.IconShapeStyle
 import com.manish.liquidlauncher.model.LiquidThemeConfig
+
+/**
+ * Staggered entrance animation for app icons on first page load.
+ *
+ * UX guidelines applied:
+ * - Staggered entrances feel deliberate and polished (rules 8, 13)
+ * - Icons slide up and fade in with easing (rules 7, 9)
+ */
+@Composable
+private fun StaggeredEntrance(
+    index: Int,
+    config: LiquidThemeConfig,
+    content: @Composable () -> Unit
+) {
+    val delayMs = Motion.staggerDelay(index)
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(
+            animationSpec = androidx.compose.animation.core.tween(
+                durationMillis = Motion.DURATION_NORMAL,
+                delayMillis = delayMs,
+                easing = Motion.EASE_OUT
+            )
+        ) +
+            slideInVertically(
+                initialOffsetY = { 12.dp },
+                animationSpec = androidx.compose.animation.core.tween(
+                    durationMillis = Motion.DURATION_NORMAL,
+                    delayMillis = delayMs,
+                    easing = Motion.EASE_OUT
+                )
+            )
+    ) {
+        content()
+    }
+}
 
 @Composable
 fun LiquidAppIconItem(
@@ -67,19 +106,38 @@ fun LiquidAppIconItem(
             },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier
-                .size(iconBoxSize)
-                .clip(shape)
-                .background(app.tint.copy(alpha = 0.16f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                bitmap = app.icon,
-                contentDescription = app.label,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize().padding(4.dp).clip(shape)
-            )
+        if (entranceIndex >= 0) {
+            StaggeredEntrance(index = entranceIndex, config = config) {
+                Box(
+                    modifier = Modifier
+                        .size(iconBoxSize)
+                        .clip(shape)
+                        .background(app.tint.copy(alpha = 0.16f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        bitmap = app.icon,
+                        contentDescription = app.label,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize().padding(4.dp).clip(shape)
+                    )
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(iconBoxSize)
+                    .clip(shape)
+                    .background(app.tint.copy(alpha = 0.16f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    bitmap = app.icon,
+                    contentDescription = app.label,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize().padding(4.dp).clip(shape)
+                )
+            }
         }
         if (showLabel) {
             Text(
