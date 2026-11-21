@@ -7,6 +7,7 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -502,14 +504,31 @@ fun HomeScreen(viewModel: LauncherViewModel, onPickWallpaper: () -> Unit) {
                     ) {
                         repeat(totalPages) { index ->
                             val selected = pagerState.currentPage == index
-                            GlassIconButton(
-                                icon = androidx.compose.material3.Icons.Default.FiberManualRecord,
-                                contentDescription = "Page $index ${if (selected) "selected" else ""}",
-                                config = config,
-                                size = 8.dp,
-                                tint = if (selected) accent else Color.White.copy(alpha = 0.5f),
-                                enabled = true,
-                                onClick = { scope.launch { pagerState.animateScrollToPage(index) } }
+                            val isPressed by remember { mutableStateOf(false) }
+                            val pressScale by animateFloatAsState(
+                                targetValue = if (isPressed) 0.85f else 1f,
+                                animationSpec = spring(
+                                    dampingRatio = 0.30f,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                label = "pageIndicatorPress"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (selected) accent else Color.White.copy(alpha = 0.15f)
+                                    )
+                                    .clickable(
+                                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                                        indication = null
+                                    ) {
+                                        isPressed = true
+                                        scope.launch { pagerState.animateScrollToPage(index) }
+                                    }
+                                    .graphicsLayer { scaleX = pressScale; scaleY = pressScale },
+                                contentAlignment = Alignment.Center
                             )
                         }
                     }
